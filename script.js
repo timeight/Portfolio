@@ -232,112 +232,51 @@ for (let i = 0; i < 3; i++) {
 scene.add(rockGroup);
 
 // ============================================================
-// PHOTO CARDS — symmetric layout, 2 per year
+// PHOTO CARDS — REMOVED, replaced by dust particles below
 // ============================================================
-function makePhotoTexture(label) {
+const cards = [];
+
+// ============================================================
+// DUST PARTICLES — small round specs floating in the air
+// ============================================================
+// Circular soft-edge texture for the dust (otherwise points render as squares)
+function makeDustTexture() {
   const c = document.createElement('canvas');
-  c.width = 400; c.height = 280;
+  c.width = 32; c.height = 32;
   const ctx = c.getContext('2d');
-
-  const grad = ctx.createLinearGradient(0, 0, 400, 280);
-  grad.addColorStop(0, '#6a7580');
-  grad.addColorStop(0.5, '#3a4550');
-  grad.addColorStop(1, '#7a8590');
+  const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+  grad.addColorStop(0,   'rgba(255, 245, 220, 1)');
+  grad.addColorStop(0.4, 'rgba(255, 235, 200, 0.6)');
+  grad.addColorStop(1,   'rgba(255, 230, 180, 0)');
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 400, 280);
-
-  // Noise
-  const img = ctx.getImageData(0, 0, 400, 280);
-  for (let i = 0; i < img.data.length; i += 4) {
-    const n = (Math.random() - 0.5) * 40;
-    img.data[i]   = Math.max(0, Math.min(255, img.data[i] + n));
-    img.data[i+1] = Math.max(0, Math.min(255, img.data[i+1] + n));
-    img.data[i+2] = Math.max(0, Math.min(255, img.data[i+2] + n));
-  }
-  ctx.putImageData(img, 0, 0);
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(0, 0, 400, 280);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = 'italic 28px serif';
-  ctx.fillText(label, 24, 50);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = '11px monospace';
-  ctx.fillText('PROJECT IMAGE', 24, 260);
-
+  ctx.fillRect(0, 0, 32, 32);
   return new THREE.CanvasTexture(c);
 }
 
-// Varied card layout — different sizes, depths, angles per year (like the original)
-// Key principle: each year has ~2-3 cards with one "hero" card closer/larger and others smaller/further
-const cardConfigs = [
-  // Year 1 — 2019 (Camera)
-  { year: 1, pos: [-3.2,  1.4, -0.5], rot: [ 0.05,  0.5,  0.04], scale: 1.4, label: '2019 / Photography' },
-  { year: 1, pos: [ 3.6,  0.6, -1.8], rot: [-0.03, -0.55, -0.06], scale: 0.9, label: '2019 / Light' },
-  { year: 1, pos: [ 2.5,  2.0, -3.0], rot: [ 0.0,  -0.4,  0.02], scale: 0.7, label: '2019 / Frame' },
+const dustCount = 800;
+const dustGeom = new THREE.BufferGeometry();
+const dustPos = new Float32Array(dustCount * 3);
 
-  // Year 2 — 2020 (Technodom)
-  { year: 2, pos: [-3.8,  0.8, -1.0], rot: [ 0.0,   0.45, -0.05], scale: 1.2, label: '2020 / Technodom' },
-  { year: 2, pos: [ 3.4,  1.6, -1.2], rot: [-0.05, -0.5,   0.08], scale: 1.0, label: '2020 / Retail' },
-
-  // Year 3 — 2021 (AstanaHub)
-  { year: 3, pos: [-3.5,  0.4, -0.8], rot: [ 0.05,  0.5,   0.05], scale: 1.3, label: '2021 / AstanaHub' },
-  { year: 3, pos: [ 3.8,  1.4, -1.5], rot: [ 0.0,  -0.4,  -0.04], scale: 0.95, label: '2021 / OmarketGroup' },
-  { year: 3, pos: [-2.6,  2.2, -2.8], rot: [-0.04,  0.3,   0.0 ], scale: 0.7, label: '2021 / Marketing' },
-
-  // Year 4 — 2022 (Teaching)
-  { year: 4, pos: [-3.4,  1.6, -0.9], rot: [ 0.0,   0.45,  0.06], scale: 1.25, label: '2022 / EKEB' },
-  { year: 4, pos: [ 3.6,  0.4, -1.4], rot: [ 0.05, -0.55, -0.05], scale: 1.05, label: '2022 / Algorithms' },
-
-  // Year 5 — 2023 (Freedom)
-  { year: 5, pos: [-3.3,  0.8, -0.6], rot: [ 0.0,   0.5,  -0.04], scale: 1.35, label: '2023 / FreedomMobile' },
-  { year: 5, pos: [ 3.2,  1.8, -1.6], rot: [-0.05, -0.45,  0.05], scale: 0.95, label: '2023 / Best Seller' },
-  { year: 5, pos: [ 2.4, -0.4, -2.8], rot: [ 0.08, -0.3,   0.0 ], scale: 0.75, label: '2023 / Sales' },
-
-  // Year 6 — 2024 (AI & 3D)
-  { year: 6, pos: [-3.5,  1.2, -0.7], rot: [ 0.0,   0.5,   0.05], scale: 1.3, label: '2024 / AI Project' },
-  { year: 6, pos: [ 3.4,  0.6, -1.3], rot: [-0.04, -0.5,  -0.06], scale: 1.0, label: '2024 / 3D Champion' },
-  { year: 6, pos: [-2.2,  2.4, -3.0], rot: [ 0.05,  0.35,  0.0 ], scale: 0.7, label: '2024 / College' },
-
-  // Year 7 — 2025 (Today)
-  { year: 7, pos: [-3.3,  0.8, -0.5], rot: [ 0.0,   0.45,  0.04], scale: 1.4, label: '2025 / Today' },
-  { year: 7, pos: [ 3.6,  1.6, -1.7], rot: [-0.05, -0.5,  -0.04], scale: 0.95, label: '2025 / Latest' },
-];
-
-const cards = [];
-cardConfigs.forEach(cfg => {
-  const tex = makePhotoTexture(cfg.label);
-  const aspect = 400 / 280;
-  const h = 1.4 * (cfg.scale || 1);
-  const w = h * aspect;
-  const geom = new THREE.PlaneGeometry(w, h);
-  const mat = new THREE.MeshBasicMaterial({
-    map: tex, transparent: true, opacity: 0, side: THREE.DoubleSide
-  });
-  const mesh = new THREE.Mesh(geom, mat);
-  mesh.position.set(...cfg.pos);
-  mesh.rotation.set(...cfg.rot);
-  scene.add(mesh);
-  cards.push({ mesh, cfg, basePos: [...cfg.pos] });
-});
-
-// ============================================================
-// PARTICLES — atmospheric dust
-// ============================================================
-const particleCount = 250;
-const pGeom = new THREE.BufferGeometry();
-const pPos = new Float32Array(particleCount * 3);
-for (let i = 0; i < particleCount; i++) {
-  pPos[i*3]   = (Math.random() - 0.5) * 18;
-  pPos[i*3+1] = (Math.random() - 0.5) * 10;
-  pPos[i*3+2] = (Math.random() - 0.5) * 10;
+for (let i = 0; i < dustCount; i++) {
+  dustPos[i*3]   = (Math.random() - 0.5) * 22;
+  dustPos[i*3+1] = (Math.random() - 0.5) * 12;
+  dustPos[i*3+2] = (Math.random() - 0.5) * 14;
 }
-pGeom.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-const particles = new THREE.Points(pGeom, new THREE.PointsMaterial({
-  color: 0xe8ede8, size: 0.02, transparent: true, opacity: 0.4
-}));
-scene.add(particles);
+dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+
+const dustMaterial = new THREE.PointsMaterial({
+  map: makeDustTexture(),
+  color: 0xfff0d0,
+  size: 0.06,                  // small, but round
+  transparent: true,
+  opacity: 0.55,
+  sizeAttenuation: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  alphaTest: 0.01
+});
+const dust = new THREE.Points(dustGeom, dustMaterial);
+scene.add(dust);
 
 // ============================================================
 // BACKGROUND SCENE CROSSFADE — switch <div class="bg-scene"> layers
@@ -413,32 +352,14 @@ function animate() {
   // Rock subtle counter-rotation for parallax depth
   rockGroup.rotation.y = scrollY * 0.2;
 
-  // Photo card visibility — fade based on which year is in view.
-  // Cards always face the camera so they read clearly during the full orbit.
-  // On mobile they're hidden entirely (no room — text panel takes most of the screen).
-  cards.forEach((card, i) => {
-    if (isMobile) {
-      card.mesh.material.opacity = 0;
-      return;
-    }
-    const yearIdx = card.cfg.year;
-    const dist = Math.abs(scenePos - yearIdx);
-    let opacity = Math.max(0, 1 - dist * 0.85);
-    if (scenePos < 0.6) opacity *= scenePos / 0.6;
-    if (scenePos > 7.4) opacity *= Math.max(0, (8 - scenePos) / 0.6);
-    card.mesh.material.opacity = opacity * 0.9;
+  // Photo cards removed — no-op
+  cards.forEach((card) => { /* no-op */ });
 
-    // Make cards face the camera (billboard) so they're always visible from any angle
-    card.mesh.lookAt(camera.position);
-
-    // Subtle vertical drift only
-    card.mesh.position.x = card.basePos[0];
-    card.mesh.position.y = card.basePos[1] + Math.sin(Date.now() * 0.0005 + i) * 0.025;
-  });
-
-  // Particle drift
-  particles.rotation.y += 0.0005;
-  particles.position.y = Math.sin(Date.now() * 0.0002) * 0.3;
+  // Dust drift — slow rotation + gentle vertical wobble
+  const t = Date.now();
+  dust.rotation.y += 0.00025;
+  dust.position.y = Math.sin(t * 0.0002) * 0.4;
+  dust.material.opacity = 0.45 + Math.sin(t * 0.0008) * 0.1;
 
   // Update background scene image (THE ONLY NEW THING)
   updateBgScene(scenePos);
