@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a2f3a" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Tamirlan Zhamalov — Portfolio 2019–2025</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="loader-name">Tamirlan Zhamalov</div>
+    <div class="loader-sub">Portfolio · 2019 — 2025</div>
+    <div class="loader-track">
+      <div class="loader-fill" id="loader-fill"></div>
+    </div>
+    <div class="loader-percent" id="loader-percent">0%</div>
+    <div class="loader-hint">Loading 3D model</div>
+  </div>
+
+  <!-- Intro / Press Play overlay -->
+  <div class="intro" id="intro">
+    <button class="intro-play" id="intro-play" aria-label="Enter site">
+      <svg width="20" height="22" viewBox="0 0 20 22">
+        <path d="M0 0 L20 11 L0 22 Z" fill="currentColor"/>
+      </svg>
+    </button>
+    <p class="intro-text">For an even more immersive<br/>experience, please enable sound!</p>
+  </div>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- Background scene layers (crossfade between years) -->
+  <div class="bg-scenes" id="bg-scenes">
+    <div class="bg-scene bg-hero active" data-scene="0"></div>
+    <div class="bg-scene bg-2019"        data-scene="1"></div>
+    <div class="bg-scene bg-2020"        data-scene="2"></div>
+    <div class="bg-scene bg-2021"        data-scene="3"></div>
+    <div class="bg-scene bg-2022"        data-scene="4"></div>
+    <div class="bg-scene bg-2023"        data-scene="5"></div>
+    <div class="bg-scene bg-2024"        data-scene="6"></div>
+    <div class="bg-scene bg-2025"        data-scene="7"></div>
+  </div>
+
+  <!-- Darkening overlay keeps figure readable on top of bg images -->
+  <div class="bg-darken"></div>
+
+  <!-- 3D figure canvas -->
+  <canvas id="canvas-3d"></canvas>
+
+  <!-- Film grain + vignette -->
+  <div class="grain"></div>
+  <div class="vignette"></div>
+
+  <!-- Top-left brand -->
+  <div class="brand">
+    <span>Tamirlan<br/>Zhamalov</span>
+    <div class="brand-sub">Portfolio · Since 2019</div>
+  </div>
+
+  <!-- Top-center timeline -->
+  <div class="timeline">
+    <span class="timeline-label">2019</span>
+    <div class="timeline-track">
+      <div class="timeline-fill" id="timeline-fill"></div>
+      <div class="timeline-dot" id="timeline-dot" style="left: 0%;"></div>
+    </div>
+    <span class="timeline-label">2025</span>
+  </div>
+
+  <!-- Bottom-center year marker -->
+  <div class="year-marker">
+    <div class="year-marker-year" id="year-num">·</div>
+    <div class="year-marker-label" id="year-label">Tamirlan Zhamalov</div>
+  </div>
+
+  <!-- Bottom-left audio button -->
+  <button class="play-btn" id="audio-btn" aria-label="Toggle music">
+    <svg width="10" height="12" viewBox="0 0 10 12">
+      <path d="M0 0 L10 6 L0 12 Z" id="audio-icon"/>
+    </svg>
+  </button>
+
+  <!-- Bottom-right socials -->
+  <div class="socials">
+    <a href="https://www.instagram.com/zhamallov/" target="_blank">Instagram</a>
+    <a href="https://t.me/zhamallov" target="_blank">Telegram</a>
+    <a href="https://wa.me/77767585599" target="_blank">WhatsApp</a>
+  </div>
+
+  <!-- Side text on hero -->
+  <div class="side-text" id="side-text">
+    <div class="side-text-line"></div>
+    <p class="side-text-body">Из Казахстана. Семь лет пути — от фотографа до преподавателя и победителя республиканского чемпионата по 3D. Каждый год — новая глава.</p>
+    <a href="#year-2019" class="side-text-link">Read More →</a>
+  </div>
+
+  <!-- Scenes -->
+  <main>
+
+    <section class="scene hero">
+      <div class="hero-content">
+        <h1 class="hero-title">Tamirlan</h1>
+      </div>
+    </section>
+
+    <section class="scene year-scene" id="year-2019">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 01 — 2019</div>
+        <h2 class="year-info-title">С камеры всё началось.</h2>
+        <p class="year-info-body">Работал фотографом. Учился видеть кадр, свет, композицию — всё то, что позже легло в основу подхода к дизайну и визуальным историям.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">Photography portfolio →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 02 — 2020</div>
+        <h2 class="year-info-title">Технодом. Первый опыт в команде.</h2>
+        <p class="year-info-body">Работа в крупной розничной сети. Понимание того, как устроены продукт, продажа и взаимодействие с клиентом изнутри.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">About Technodom →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 03 — 2021</div>
+        <h2 class="year-info-title">Маркетинг и AstanaHub.</h2>
+        <p class="year-info-body">Старт в маркетинге в OmarketGroup. С сентября — стажировка в AstanaHub: первое погружение в технологическое сообщество Казахстана.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">OmarketGroup →</a>
+          <a href="#" class="year-info-link" target="_blank">AstanaHub internship →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 04 — 2022</div>
+        <h2 class="year-info-title">Преподавание в EKEB.</h2>
+        <p class="year-info-body">Колледж EKEB — преподаватель по базам данных и алгоритмизации. Обучая других, учился сам — структурировать знания, объяснять сложное просто.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">EKEB college →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 05 — 2023</div>
+        <h2 class="year-info-title">Лучший продавец FreedomMobile.</h2>
+        <p class="year-info-body">Год в FreedomMobile продавцом-консультантом. Стал лучшим продавцом — научился слышать клиента, говорить на его языке и закрывать сделки.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">FreedomMobile →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 06 — 2024</div>
+        <h2 class="year-info-title">Колледж, ИИ-проекты, чемпион РК.</h2>
+        <p class="year-info-body">Преподаю в Актюбинском высшем политехническом колледже. Разработал 3 проекта на базе ИИ. Победитель республиканского чемпионата по 3D-моделированию.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">AI Project #1 →</a>
+          <a href="#" class="year-info-link" target="_blank">AI Project #2 →</a>
+          <a href="#" class="year-info-link" target="_blank">AI Project #3 →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene year-scene">
+      <div class="year-info">
+        <div class="year-info-eyebrow">Year 07 — 2025</div>
+        <h2 class="year-info-title">Сегодня.</h2>
+        <p class="year-info-body">Продолжаю преподавать, развиваю проекты на базе ИИ и 3D. Семь лет — фотография, продажи, маркетинг, преподавание, технологии — сплелись в один путь.</p>
+        <div class="year-info-links">
+          <a href="#" class="year-info-link" target="_blank">Latest work →</a>
+          <a href="#" class="year-info-link" target="_blank">Get in touch →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene final-scene">
+      <div class="final-content">
+        <div class="final-eyebrow">Let's build something together</div>
+        <h2 class="final-title">Семь лет — это только начало.</h2>
+        <a href="mailto:hello@tamirlan.com" class="final-cta">hello@tamirlan.com</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Ambient music -->
+  <audio id="ambient" loop preload="auto">
+    <source src="./music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Three.js setup via importmap -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

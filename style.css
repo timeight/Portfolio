@@ -1,0 +1,720 @@
+:root {
+  --bg-1: #1a2f3a;
+  --bg-2: #213e4a;
+  --bg-3: #2a4a55;
+  --fg: #e8ede8;
+  --fg-dim: rgba(232, 237, 232, 0.55);
+  --fg-faint: rgba(232, 237, 232, 0.18);
+  --accent: #f5f1e8;
+  --line: rgba(232, 237, 232, 0.2);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg-1);
+  color: var(--fg);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+}
+
+body { cursor: none; }
+
+/* ========== CURSOR ========== */
+.cursor {
+  position: fixed;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--fg);
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  position: fixed;
+  width: 30px; height: 30px;
+  border: 1px solid rgba(232, 237, 232, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ========== BACKGROUND SCENES ========== */
+/* Container holds 8 stacked image layers. JS toggles their opacity to crossfade. */
+.bg-scenes {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg-1);
+}
+.bg-scene {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out, transform 8s ease-out;
+  will-change: opacity, transform;
+  /* Light blur softens detail so it doesn't compete with the figure and text */
+  filter: blur(4px) saturate(0.85) brightness(0.7);
+  /* Slightly larger so blur edges aren't visible */
+  transform: scale(1.06);
+}
+.bg-scene.active {
+  opacity: 1;
+  /* Subtle Ken Burns zoom while the scene is active */
+  transform: scale(1.12);
+}
+
+/* Hero — fallback solid gradient (no image needed) */
+.bg-hero {
+  background-image: radial-gradient(ellipse 80% 60% at 50% 50%, var(--bg-3) 0%, var(--bg-2) 35%, var(--bg-1) 75%);
+  filter: none;
+  transform: scale(1);
+}
+.bg-hero.active { transform: scale(1); }
+
+/* Year scenes — point to your images in /images/ folder */
+.bg-2019 { background-image: url('./images/bg-2019.jpg'); }
+.bg-2020 { background-image: url('./images/bg-2020.jpg'); }
+.bg-2021 { background-image: url('./images/bg-2021.jpg'); }
+.bg-2022 { background-image: url('./images/bg-2022.jpg'); }
+.bg-2023 { background-image: url('./images/bg-2023.jpg'); }
+.bg-2024 { background-image: url('./images/bg-2024.jpg'); }
+.bg-2025 { background-image: url('./images/bg-2025.jpg'); }
+
+/* Dark overlay on top of bg image — keeps figure and text readable */
+.bg-darken {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 50%, rgba(15, 30, 40, 0.25) 0%, rgba(15, 30, 40, 0.65) 100%),
+    linear-gradient(180deg, rgba(15, 30, 40, 0.35) 0%, rgba(15, 30, 40, 0.55) 100%);
+}
+
+.grain {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.vignette {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%);
+}
+
+#canvas-3d {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+}
+
+/* ========== BRAND ========== */
+.brand {
+  position: fixed;
+  top: 36px; left: 40px;
+  z-index: 200;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.brand-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-top: 6px;
+}
+
+/* ========== TIMELINE ========== */
+.timeline {
+  position: fixed;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: min(560px, 50vw);
+}
+.timeline-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--fg);
+}
+.timeline-track {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+}
+.timeline-fill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 1px;
+  background: var(--accent);
+  width: 0%;
+  box-shadow: 0 0 8px rgba(245, 241, 232, 0.4);
+}
+.timeline-dot {
+  position: absolute;
+  top: 50%;
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(245, 241, 232, 0.6);
+}
+
+/* ========== AUDIO BUTTON ========== */
+.play-btn {
+  position: fixed;
+  bottom: 36px; left: 40px;
+  z-index: 200;
+  width: 36px; height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  cursor: none;
+  display: grid;
+  place-items: center;
+  transition: all 0.3s;
+}
+.play-btn:hover {
+  border-color: var(--fg);
+  transform: scale(1.1);
+}
+.play-btn svg { fill: var(--fg-dim); transition: fill 0.3s; }
+.play-btn:hover svg { fill: var(--fg); }
+.play-btn.playing svg { fill: var(--accent); }
+
+/* ========== SOCIALS ========== */
+.socials {
+  position: fixed;
+  bottom: 36px; right: 40px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.socials::before {
+  content: '';
+  width: 20px; height: 1px;
+  background: var(--fg-dim);
+  margin-right: 4px;
+}
+.socials a {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--fg-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.socials a:hover { color: var(--fg); }
+
+/* ========== YEAR MARKER ========== */
+.year-marker {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  text-align: center;
+  pointer-events: none;
+}
+.year-marker-year {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--fg-dim);
+  margin-bottom: 4px;
+}
+.year-marker-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 88px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: rgba(232, 237, 232, 0.18);
+  line-height: 0.9;
+}
+
+/* ========== SCENES ========== */
+main { position: relative; z-index: 10; }
+
+.scene {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* Hero */
+.hero {
+  justify-content: center;
+  text-align: center;
+}
+.hero-content {
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(80px, 14vw, 220px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: rgba(232, 237, 232, 0.12);
+  white-space: nowrap;
+  font-style: italic;
+}
+
+/* Side text */
+.side-text {
+  position: fixed;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  max-width: 280px;
+  transition: opacity 0.6s;
+}
+.side-text-line {
+  width: 30px; height: 1px;
+  background: var(--fg);
+  margin-bottom: 18px;
+}
+.side-text-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--fg);
+  margin-bottom: 28px;
+}
+.side-text-link {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fg-dim);
+  padding-bottom: 4px;
+  transition: border-color 0.3s;
+  pointer-events: auto;
+}
+.side-text-link:hover { border-color: var(--fg); }
+.side-text.hidden { opacity: 0; pointer-events: none; }
+
+/* Year scenes */
+.year-scene { padding: 0 80px; }
+.year-info {
+  margin-left: auto;
+  max-width: 360px;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s, transform 0.8s;
+  /* Glass-card background so text stays readable on busy bg images */
+  background: linear-gradient(135deg, rgba(15, 30, 40, 0.55), rgba(15, 30, 40, 0.35));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 28px 32px;
+  border-left: 1px solid rgba(232, 237, 232, 0.15);
+}
+.year-info.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.year-info-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--fg-dim);
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+.year-info-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+.year-info-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--fg-dim);
+  margin-bottom: 22px;
+}
+.year-info-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.year-info-link {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fg-dim);
+  padding-bottom: 3px;
+  width: fit-content;
+  transition: border-color 0.3s, color 0.3s;
+}
+.year-info-link:hover { border-color: var(--fg); color: var(--accent); }
+
+/* Final */
+.final-scene {
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+}
+.final-content {
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.final-content.visible { opacity: 1; }
+.final-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--fg-dim);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+.final-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 6vw, 84px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.1;
+  margin-bottom: 30px;
+  letter-spacing: -0.02em;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.final-cta {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fg);
+  padding-bottom: 4px;
+}
+
+/* ========== LOADER ========== */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+.loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loader-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--fg);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.loader-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  margin-bottom: 60px;
+}
+.loader-track {
+  width: 220px;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.loader-fill {
+  position: absolute;
+  left: 0; top: 0; height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s ease-out;
+  box-shadow: 0 0 8px rgba(245, 241, 232, 0.5);
+}
+.loader-percent {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--fg-dim);
+  margin-top: 16px;
+}
+.loader-hint {
+  position: absolute;
+  bottom: 30px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--fg-faint);
+  text-transform: uppercase;
+}
+
+/* ========== INTRO ========== */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+.intro.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.intro-play {
+  width: 70px;
+  height: 70px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  cursor: none;
+  display: grid;
+  place-items: center;
+  padding-left: 6px;
+  transition: all 0.4s ease;
+}
+.intro-play:hover {
+  background: var(--accent);
+  color: var(--bg-1);
+  transform: scale(1.08);
+}
+.intro-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+  text-align: center;
+  max-width: 320px;
+}
+
+/* ========================================================== */
+/* ============ TABLET (769px – 1024px) ===================== */
+/* ========================================================== */
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* Brand a bit tighter */
+  .brand { top: 24px; left: 24px; font-size: 15px; }
+  .brand-sub { font-size: 8px; letter-spacing: 0.2em; }
+
+  /* Timeline shorter — clean line at the top */
+  .timeline { top: 32px; width: min(420px, 45vw); gap: 18px; }
+  .timeline-label { font-size: 9px; }
+
+  /* Side text moves to bottom-left so it doesn't fight the figure */
+  .side-text {
+    top: auto;
+    right: auto;
+    bottom: 100px;
+    left: 24px;
+    transform: none;
+    max-width: 280px;
+  }
+  .side-text-body { font-size: 15px; }
+
+  /* Year info panel slightly narrower */
+  .year-scene { padding: 0 40px; }
+  .year-info {
+    max-width: 320px;
+    padding: 24px 26px;
+  }
+  .year-info-title { font-size: 30px; }
+  .year-info-body { font-size: 15px; }
+
+  /* Year marker — slightly smaller */
+  .year-marker-label { font-size: 70px; }
+
+  /* Bigger tap targets for touch */
+  .play-btn { width: 40px; height: 40px; bottom: 28px; left: 28px; }
+  .socials { bottom: 28px; right: 28px; }
+
+  /* Disable custom cursor — touch device */
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+}
+
+/* ========================================================== */
+/* ============ PHONE (≤ 768px) ============================ */
+/* ========================================================== */
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+
+  /* Lighter blur — saves GPU on mobile and avoids Safari bugs */
+  .bg-scene {
+    filter: blur(2px) saturate(0.85) brightness(0.65);
+  }
+  /* Disable backdrop-filter on year-info (mobile Safari struggles with it) */
+  .year-info {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: linear-gradient(135deg, rgba(15, 30, 40, 0.7), rgba(15, 30, 40, 0.55));
+  }
+
+  /* Brand top-left smaller */
+  .brand { top: 14px; left: 16px; font-size: 13px; }
+  .brand-sub { font-size: 7px; letter-spacing: 0.18em; margin-top: 4px; }
+
+  /* Timeline moves below the brand to its own row */
+  .timeline {
+    top: 70px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    transform: none;
+    gap: 10px;
+  }
+  .timeline-label { font-size: 8px; letter-spacing: 0.2em; }
+
+  /* Audio + socials — bigger tap targets, lifted slightly */
+  .play-btn {
+    bottom: 16px;
+    left: 16px;
+    width: 38px;
+    height: 38px;
+  }
+  .socials {
+    bottom: 20px;
+    right: 16px;
+    gap: 12px;
+  }
+  .socials::before { width: 10px; }
+  .socials a {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    padding: 6px 2px;  /* easier to tap */
+  }
+
+  /* Year marker smaller — Cormorant scales poorly below 50px */
+  .year-marker { bottom: 70px; }
+  .year-marker-year { font-size: 10px; letter-spacing: 0.25em; }
+  .year-marker-label { font-size: 44px; }
+
+  /* Side-text — full-width band at the bottom, above audio button */
+  .side-text {
+    right: 16px;
+    left: 16px;
+    max-width: none;
+    top: auto;
+    bottom: 140px;
+    transform: none;
+  }
+  .side-text-line { margin-bottom: 12px; }
+  .side-text-body { font-size: 13px; line-height: 1.45; margin-bottom: 16px; }
+  .side-text-link { font-size: 14px; }
+
+  /* Year scenes — info panel full-width near the bottom */
+  .year-scene {
+    padding: 0 16px;
+    align-items: flex-end;  /* anchor info card to the bottom */
+  }
+  .year-info {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    margin-bottom: 130px;   /* clear of year marker + audio button */
+    padding: 20px 22px;
+  }
+  .year-info-eyebrow { font-size: 9px; letter-spacing: 0.25em; margin-bottom: 12px; }
+  .year-info-title { font-size: 24px; line-height: 1.15; margin-bottom: 12px; }
+  .year-info-body { font-size: 13px; line-height: 1.45; margin-bottom: 16px; }
+  .year-info-link { font-size: 14px; }
+
+  /* Hero & final */
+  .hero-title { font-size: clamp(36px, 18vw, 80px); }
+  .final-scene { padding: 0 20px; }
+  .final-title { font-size: clamp(26px, 9vw, 44px); margin-bottom: 22px; }
+  .final-cta { font-size: 18px; }
+  .final-eyebrow { font-size: 9px; letter-spacing: 0.3em; }
+
+  /* Loader / intro */
+  .loader-name { font-size: 22px; }
+  .loader-sub { font-size: 9px; margin-bottom: 40px; }
+  .loader-track { width: 160px; }
+  .intro-play { width: 60px; height: 60px; }
+  .intro-text { font-size: 14px; padding: 0 20px; }
+}
+
+/* ========================================================== */
+/* ============ SMALL PHONE (≤ 380px) ====================== */
+/* ========================================================== */
+@media (max-width: 380px) {
+  .brand { font-size: 12px; }
+  .timeline { top: 64px; }
+  .year-marker-label { font-size: 36px; }
+  .year-info-title { font-size: 20px; }
+  .year-info { margin-bottom: 120px; padding: 16px 18px; }
+  .side-text { bottom: 120px; }
+  .side-text-body { font-size: 12px; }
+}
+
+/* ========================================================== */
+/* ============ LANDSCAPE PHONE (low height) ================ */
+/* Phones rotated sideways have very little vertical room    */
+/* ========================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .brand { top: 12px; }
+  .timeline { top: 14px; }
+  .year-marker { bottom: 14px; }
+  .year-marker-label { font-size: 32px; }
+  .play-btn { bottom: 14px; }
+  .socials { bottom: 16px; }
+  .side-text { bottom: 80px; max-width: 240px; left: auto; right: 20px; }
+  .year-info {
+    margin-bottom: 70px;
+    max-width: 340px;
+    margin-left: auto;
+  }
+}
